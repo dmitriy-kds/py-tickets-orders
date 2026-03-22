@@ -1,5 +1,6 @@
 from django.db import transaction
 from rest_framework import serializers
+from rest_framework.relations import PrimaryKeyRelatedField
 
 from cinema.models import (
     Genre,
@@ -125,7 +126,9 @@ class TicketSerializer(serializers.ModelSerializer):
 
 
 class TicketCreateSerializer(serializers.ModelSerializer):
-    movie_session = MovieSessionListSerializer(read_only=False)
+    movie_session = PrimaryKeyRelatedField(
+        queryset=MovieSession.objects.all()
+    )
 
     class Meta:
         model = Ticket
@@ -138,7 +141,7 @@ class TicketCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs: dict) -> dict:
         movie_session = attrs["movie_session"]
-        cinema_hall = movie_session["cinema_hall"]
+        cinema_hall = movie_session.cinema_hall
 
         if not (1 <= attrs["row"] <= cinema_hall.rows):
             raise serializers.ValidationError(
@@ -153,7 +156,7 @@ class TicketCreateSerializer(serializers.ModelSerializer):
 
 
 class OrderListSerializer(serializers.ModelSerializer):
-    tickets = TicketCreateSerializer(many=True, read_only=True)
+    tickets = TicketSerializer(many=True, read_only=True)
 
     class Meta:
         model = Order
@@ -165,7 +168,7 @@ class OrderListSerializer(serializers.ModelSerializer):
 
 
 class OrderCreateSerializer(serializers.ModelSerializer):
-    tickets = TicketSerializer(many=True, read_only=False)
+    tickets = TicketCreateSerializer(many=True, read_only=False)
 
     class Meta:
         model = Order

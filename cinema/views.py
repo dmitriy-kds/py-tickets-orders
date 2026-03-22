@@ -2,7 +2,7 @@ from typing import Type
 
 from django.db.models import QuerySet
 from rest_framework import viewsets
-from rest_framework.pagination import PageNumberPagination
+from rest_framework import pagination
 from rest_framework.serializers import Serializer
 
 from cinema.models import (
@@ -29,21 +29,25 @@ from cinema.serializers import (
 
 
 class GenreViewSet(viewsets.ModelViewSet):
+    pagination_class = None
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
 class ActorViewSet(viewsets.ModelViewSet):
+    pagination_class = None
     queryset = Actor.objects.all()
     serializer_class = ActorSerializer
 
 
 class CinemaHallViewSet(viewsets.ModelViewSet):
+    pagination_class = None
     queryset = CinemaHall.objects.all()
     serializer_class = CinemaHallSerializer
 
 
 class MovieViewSet(viewsets.ModelViewSet):
+    pagination_class = None
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
 
@@ -78,6 +82,7 @@ class MovieViewSet(viewsets.ModelViewSet):
 
 
 class MovieSessionViewSet(viewsets.ModelViewSet):
+    pagination_class = None
     queryset = MovieSession.objects.all()
     serializer_class = MovieSessionSerializer
 
@@ -108,15 +113,8 @@ class MovieSessionViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-class OrderPagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = "page_size"
-    max_page_size = 100
-
-
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
-    pagination_class = OrderPagination
 
     def get_queryset(self) -> QuerySet:
         if self.action == "list":
@@ -127,6 +125,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                 "tickets__movie_session__cinema_hall"
             )
         return self.queryset
+
 
     def perform_create(self, serializer: Serializer):
         serializer.save(user=self.request.user)
