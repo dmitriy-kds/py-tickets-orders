@@ -123,6 +123,7 @@ class TicketSerializer(serializers.ModelSerializer):
             "movie_session",
         ]
 
+
 class TicketCreateSerializer(serializers.ModelSerializer):
     movie_session = MovieSessionListSerializer(read_only=False)
 
@@ -143,6 +144,7 @@ class TicketCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 f"Choose row between 1 and {cinema_hall.rows}"
             )
+
         if not ( 1 <= attrs["seat"] <= cinema_hall.seats_in_row):
             raise serializers.ValidationError(
                 f"Choose seat between 1 and {cinema_hall.seats_in_row}"
