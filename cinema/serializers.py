@@ -123,9 +123,35 @@ class TicketSerializer(serializers.ModelSerializer):
             "movie_session",
         ]
 
+class TicketCreateSerializer(serializers.ModelSerializer):
+    movie_session = MovieSessionListSerializer(read_only=False)
+
+    class Meta:
+        model = Ticket
+        fields = [
+            "id",
+            "row",
+            "seat",
+            "movie_session",
+        ]
+
+    def validate(self, attrs: dict) -> dict:
+        movie_session = attrs["movie_session"]
+        cinema_hall = movie_session["cinema_hall"]
+
+        if not (1 <= attrs["row"] <= cinema_hall.rows):
+            raise serializers.ValidationError(
+                f"Choose row between 1 and {cinema_hall.rows}"
+            )
+        if not ( 1 <= attrs["seat"] <= cinema_hall.seats_in_row):
+            raise serializers.ValidationError(
+                f"Choose seat between 1 and {cinema_hall.seats_in_row}"
+            )
+        return attrs
+
 
 class OrderListSerializer(serializers.ModelSerializer):
-    tickets = TicketSerializer(many=True, read_only=True)
+    tickets = TicketCreateSerializer(many=True, read_only=True)
 
     class Meta:
         model = Order
