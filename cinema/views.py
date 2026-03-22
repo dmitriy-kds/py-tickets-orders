@@ -126,7 +126,6 @@ class OrderViewSet(viewsets.ModelViewSet):
             )
         return self.queryset
 
-
     def perform_create(self, serializer: Serializer):
         serializer.save(user=self.request.user)
 
